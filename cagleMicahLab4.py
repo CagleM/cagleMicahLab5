@@ -43,7 +43,7 @@ def initializeMenu(numItems=0):
     dict, a dictionary of items and their prices or if 0, then a default menu is returned"""
     
     if numItems == 0:
-        return {"Coffee":4.00, "Tea":3.00,"Cat Pass":5.00,"Pastrie":2.00}
+        return {"Coffee":4.00, "Tea":3.00,"CatPass":5.00,"Pastrie":2.00}
     else:
         menu = {}
         for i in range(numItems):
@@ -51,6 +51,28 @@ def initializeMenu(numItems=0):
             itemPrice = float(input(f"And what is the price of {itemName}? "))
             menu[itemName] = itemPrice
         return menu
+    
+def addItemsToCart(cafeMenu):
+    """ Executes a loop that prompts the user to enter an item from the given menu and adds it to a list
+    
+    Parameters:
+    cafeMenu: dict, the menu of items and prices
+    
+    Returns:
+    cart, a list of items the user has ordered"""
+    
+    shoppingDoneCheck = ""
+    cart = {}
+    while shoppingDoneCheck.lower() != "done":
+        cartItem = input("What can I get for you today? [CaSe SeNsItIvE, type 'done' when finished] ")
+        if cartItem.lower() == "done":
+            shoppingDoneCheck = "done"
+        elif cartItem not in cafeMenu:
+            print(f"Sorry, we don not have {cartItem} on the menu today. Scroll up to have another look at the menu.")
+        else:
+            cart[cartItem] = cafeMenu[cartItem]
+    
+    return cart
 
 def getItemPrice(menu, itemName):
     """Looks up an item and returns the item price
@@ -109,8 +131,7 @@ def printReceipt(originalOrder, discounts, discountCode, split):
         print(f"Split\t\t ${costPer:.2f}")
     else:
         pass
-    
-    
+     
 
 def main():
     """Holds the cafe name, student boolean
@@ -119,25 +140,28 @@ def main():
     
     No returns"""
     
-    # print(initializeMenu(3))
+    #Initialize menu
+    cafeMenu = initializeMenu(int(input("How many menu items do you want to set today? [0 for default menu] ")))
 
     # Welcome Banner for the cat cafe my wife want's to own
     printWelcome("Cagle Cat Cafe")
 
     #Prints menu for user
-    print("\nWe have:\nCoffee    $4.00\nTea       $3.00\nCatPass   $5.00\nPastrie   $2.00")
-    firstItem = input('\nWhat would you like? [First item of two] ')
-    secondItem = input("And for your second item? ")
-    print(f"Alright, so I have a {firstItem} and a {secondItem}.")
+    for item in cafeMenu:
+        print(f"{item}\t\t ${cafeMenu[item]:.2f}")
+        
+    #User shooping cart
+    cart = addItemsToCart(cafeMenu)
+    
+    print("\nAlrighty, so I have: a ", end=" ")
+    for value in cart:
+        print(f"{value}", end=", ")
 
-    #Get item price
-    cafeMenu = {"coffee":4, "tea":3,"catpass":5,"pastrie":2}
-    firstItemPrice = getItemPrice(cafeMenu, firstItem.lower())
-    secondItemPrice = getItemPrice(cafeMenu, secondItem.lower())
-    userCartTotal = [firstItemPrice, secondItemPrice]
+    #Get item price(s)
+    
 
     #Student or faculty discount
-    student = input("Are you a student? [Yes/No] ")
+    student = input("\nAre you a student? [Yes/No] ")
     if student.lower() == "yes":
         discountCode = "student"
     else:
@@ -147,28 +171,17 @@ def main():
         else:
             discountCode = "n/a"
 
-    # dict for the applyDiscount function and test execution
-    originalOrder = {firstItem:firstItemPrice, secondItem:secondItemPrice} 
-    #print(applyDiscount(originalOrder, discountCode))
-    discountedOrder = applyDiscount(originalOrder, discountCode)
+    #print(applyDiscount(cart, discountCode))
+    discountedOrder = applyDiscount(cart, discountCode)
     #finding the discount for each item prepping for the reciept function
-    discounts = {k: -(discountedOrder[k] - originalOrder[k]) for k in discountedOrder if k in originalOrder} #I did use AI to figue this one out. How to quickly get a difference of dict values and put it back into a dict
+    discounts = {k: -(discountedOrder[k] - cart[k]) for k in discountedOrder if k in cart} #I did use AI to figue this one out. How to quickly get a difference of dict values and put it back into a dict
     total = sum(discountedOrder.values())
 
     #Splitting bill
     userSplitting = int(input("And how many people are paying today? Just you or your party? [Number] "))
-    if userSplitting == 1:
-        print(f"Alrighty, and your total is ${total:.2f}")
-    elif userSplitting > 1:
-        totalSplit = splitBill(total, userSplitting)
-        print(f"Each person in your party will pay ${totalSplit:.2f} today.")
-    else:
-        print("Well someone has to pay... you're not getting this for free.")
-        
-    printReceipt(originalOrder, discounts, discountCode, userSplitting)
 
-    
-
+    #Print reciept
+    printReceipt(cart, discounts, discountCode, userSplitting)
 
 main()
     
