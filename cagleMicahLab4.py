@@ -80,6 +80,38 @@ def splitBill(priceTotal, numPeople):
     totalSplit = priceTotal/numPeople # You may notice that I did not do the list way. I did it this way because of how the discount gives the subtotal and multipling a list by 0.9 is difficult to figure out right now.
     return totalSplit
 
+def printReceipt(originalOrder, discounts, discountCode, split):
+    """ For each item in the order, this prints the name, the original price, the savings per item, then the final total
+    
+    Parameters:
+    originalOrder: dict, original items with prices
+    discounts: dict, discounted items with prices
+    discountCode: str, determines if the user has the discount or not
+    split: int, nuber of people splitting the bill
+    
+    Returns:
+    Multiple prints that make the output look like a reciept"""
+    
+    for item in originalOrder:
+        if discountCode == "n/a":
+            print(f"{item}\t\t ${originalOrder[item]:.2f}")
+        else:
+            print(f"{item}\t\t ${originalOrder[item]:.2f}")
+            print(f"  Savings  \t-${discounts[item]:.2f}")
+            
+    print("-----------------------")
+    print(f"Subtotal\t ${sum(originalOrder.values()):.2f}")
+    print(f"Savings\t\t-${sum(discounts.values()):.2f}")
+    total = sum(originalOrder.values()) - sum(discounts.values())
+    print(f"Total\t\t ${total:.2f}")
+    if split > 1:
+        costPer = splitBill(total, split)
+        print(f"Split\t\t ${costPer:.2f}")
+    else:
+        pass
+    
+    
+
 def main():
     """Holds the cafe name, student boolean
     
@@ -93,23 +125,23 @@ def main():
     printWelcome("Cagle Cat Cafe")
 
     #Prints menu for user
-    print("\nWe have:\nCoffee   - $4.00\nTea      - $3.00\nCat Pass - $5.00\nPastrie  - $2.00")
+    print("\nWe have:\nCoffee    $4.00\nTea       $3.00\nCatPass   $5.00\nPastrie   $2.00")
     firstItem = input('\nWhat would you like? [First item of two] ')
     secondItem = input("And for your second item? ")
     print(f"Alright, so I have a {firstItem} and a {secondItem}.")
 
     #Get item price
-    cafeMenu = {"coffee":4, "tea":3,"cat pass":5,"pastrie":2}
+    cafeMenu = {"coffee":4, "tea":3,"catpass":5,"pastrie":2}
     firstItemPrice = getItemPrice(cafeMenu, firstItem.lower())
     secondItemPrice = getItemPrice(cafeMenu, secondItem.lower())
     userCartTotal = [firstItemPrice, secondItemPrice]
 
     #Student or faculty discount
-    student = input("Are you a student? [yes/no] ")
+    student = input("Are you a student? [Yes/No] ")
     if student.lower() == "yes":
         discountCode = "student"
     else:
-        faculty = input("Are you faculty? [yes/no] ")
+        faculty = input("Are you faculty? [Yes/No] ")
         if faculty.lower() == "yes":
             discountCode = "faculty"
         else:
@@ -120,7 +152,7 @@ def main():
     #print(applyDiscount(originalOrder, discountCode))
     discountedOrder = applyDiscount(originalOrder, discountCode)
     #finding the discount for each item prepping for the reciept function
-    discounts = {k: discountedOrder[k] - originalOrder[k] for k in discountedOrder if k in originalOrder} #I did use AI to figue this one out. How to quickly get a difference of dict values
+    discounts = {k: -(discountedOrder[k] - originalOrder[k]) for k in discountedOrder if k in originalOrder} #I did use AI to figue this one out. How to quickly get a difference of dict values and put it back into a dict
     total = sum(discountedOrder.values())
 
     #Splitting bill
@@ -132,6 +164,8 @@ def main():
         print(f"Each person in your party will pay ${totalSplit:.2f} today.")
     else:
         print("Well someone has to pay... you're not getting this for free.")
+        
+    printReceipt(originalOrder, discounts, discountCode, userSplitting)
 
     
 
