@@ -141,6 +141,8 @@ def main():
     No returns"""
     
     #Initialize menu
+    #initializeMenu(3)
+    #initializeMenu()
     cafeMenu = initializeMenu(int(input("How many menu items do you want to set today? [0 for default menu] ")))
 
     # Welcome Banner for the cat cafe my wife want's to own
@@ -171,8 +173,13 @@ def main():
         else:
             discountCode = "n/a"
 
+
+    # test applyDiscount function
+    # print(applyDiscount(cart, "student"), "student")
+    # print(applyDiscount(cart, "faculty"), "faculty")
     #print(applyDiscount(cart, discountCode))
     discountedOrder = applyDiscount(cart, discountCode)
+    
     #finding the discount for each item prepping for the reciept function
     discounts = {k: -(discountedOrder[k] - cart[k]) for k in discountedOrder if k in cart} #I did use AI to figue this one out. How to quickly get a difference of dict values and put it back into a dict
     total = sum(discountedOrder.values())
