@@ -9,22 +9,29 @@ def printWelcome(cafeName):
     str, a welcome message from the cafe."""
 
     print(f"\n~~ Welcome to the {cafeName}! ~~")
-
-def calculateTotal(price, isStudent):
-    """Applies a discount depending on if the user is a student
+    
+    
+def applyDiscount(originalOrder, discountCode):
+    """ Apply a 10% discount for students and a 5% discount for faculty. Otherwise, keep the original price. 
     
     Parameters:
-    price: float, current price of an item
-    isStudent: boolean, dependent on student status
-
+    originalOrder: dict, patron's order with names and prices
+    discountCode: str, either "student" or "faculty" to determine the discount applied
+    
     Returns:
-    float, (new) price rounded to 2 decimals."""
+    dict, discounted prices rounded to 2 decimal places."""
+    
+    discountedOrder = {}
+    for item, price in originalOrder.items():
+        if discountCode == "student":
+            discountedPrice = round(price * 0.9, 2)
+        elif discountCode == "faculty":
+            discountedPrice = round(price * 0.95, 2)
+        else:
+            discountedPrice = price
+        discountedOrder[item] = discountedPrice
+    return discountedOrder
 
-    if isStudent == True:
-        price = price * 0.9
-        return price
-    else:
-        return price
     
 def initializeMenu(numItems=0):
     """ Executes a loop that prompts the user to enter an item and the cost of that item (meant to build the menu)
@@ -92,25 +99,36 @@ def main():
     print(f"Alright, so I have a {firstItem} and a {secondItem}.")
 
     #Get item price
-    cafeMenu = {"Coffee":4, "Tea":3,"Cat Pass":5,"Pastrie":2}
-    firstItemPrice = getItemPrice(cafeMenu, firstItem)
-    secondItemPrice = getItemPrice(cafeMenu, secondItem)
+    cafeMenu = {"coffee":4, "tea":3,"cat pass":5,"pastrie":2}
+    firstItemPrice = getItemPrice(cafeMenu, firstItem.lower())
+    secondItemPrice = getItemPrice(cafeMenu, secondItem.lower())
     userCartTotal = [firstItemPrice, secondItemPrice]
 
-    #Student discount
+    #Student or faculty discount
     student = input("Are you a student? [yes/no] ")
     if student.lower() == "yes":
-        student = True
+        discountCode = "student"
     else:
-        student = False
-    price = calculateTotal(sum(userCartTotal), student)
+        faculty = input("Are you faculty? [yes/no] ")
+        if faculty.lower() == "yes":
+            discountCode = "faculty"
+        else:
+            discountCode = "n/a"
+
+    # dict for the applyDiscount function and test execution
+    originalOrder = {firstItem:firstItemPrice, secondItem:secondItemPrice} 
+    #print(applyDiscount(originalOrder, discountCode))
+    discountedOrder = applyDiscount(originalOrder, discountCode)
+    #finding the discount for each item prepping for the reciept function
+    discounts = {k: discountedOrder[k] - originalOrder[k] for k in discountedOrder if k in originalOrder} #I did use AI to figue this one out. How to quickly get a difference of dict values
+    total = sum(discountedOrder.values())
 
     #Splitting bill
     userSplitting = int(input("And how many people are paying today? Just you or your party? [Number] "))
     if userSplitting == 1:
-        print(f"Alrighty, and your total is ${price:.2f}")
+        print(f"Alrighty, and your total is ${total:.2f}")
     elif userSplitting > 1:
-        totalSplit = splitBill(price, userSplitting)
+        totalSplit = splitBill(total, userSplitting)
         print(f"Each person in your party will pay ${totalSplit:.2f} today.")
     else:
         print("Well someone has to pay... you're not getting this for free.")
