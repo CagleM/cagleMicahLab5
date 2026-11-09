@@ -25,6 +25,25 @@ def calculateTotal(price, isStudent):
         return price
     else:
         return price
+    
+def initializeMenu(numItems=0):
+    """ Executes a loop that prompts the user to enter an item and the cost of that item (meant to build the menu)
+    
+    Parameter:
+    numItems: int, how many items to be added to the menu
+    
+    Returns:
+    dict, a dictionary of items and their prices or if 0, then a default menu is returned"""
+    
+    if numItems == 0:
+        return {"Coffee":4.00, "Tea":3.00,"Cat Pass":5.00,"Pastrie":2.00}
+    else:
+        menu = {}
+        for i in range(numItems):
+            itemName = input(f"What is the name of item? ")
+            itemPrice = float(input(f"And what is the price of {itemName}? "))
+            menu[itemName] = itemPrice
+        return menu
 
 def getItemPrice(menu, itemName):
     """Looks up an item and returns the item price
@@ -60,6 +79,8 @@ def main():
     No parameters
     
     No returns"""
+    
+    # print(initializeMenu(3))
 
     # Welcome Banner for the cat cafe my wife want's to own
     printWelcome("Cagle Cat Cafe")
@@ -93,6 +114,8 @@ def main():
         print(f"Each person in your party will pay ${totalSplit:.2f} today.")
     else:
         print("Well someone has to pay... you're not getting this for free.")
+
+    
 
 
 main()
